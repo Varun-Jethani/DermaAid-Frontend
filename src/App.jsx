@@ -12,6 +12,7 @@ axios.defaults.headers.common["Content-Type"] = "application/json";
 
 import MedicalRecords from "./components/Pages/Models";
 import SkinDiseaseResult from "./components/Pages/ModOutput/SkinDisease";
+import WoundResult from "./components/Pages/ModOutput/WoundResult";
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/models" element={<MedicalRecords />} />
         <Route path="/skinresult" element={<SkinDiseaseResult />} />
+        <Route path="/woundresult" element={<WoundResult />} />
       </Routes>
     </BrowserRouter>
   );

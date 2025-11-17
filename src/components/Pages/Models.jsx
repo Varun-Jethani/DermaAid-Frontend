@@ -80,8 +80,45 @@ const MedicalRecords = () => {
       );
 
       const data = await response.json();
+
+//     const data = {
+//     "all_probabilities": [
+//         0.9965529441833496,
+//         2.32233196584275e-05,
+//         1.5592728459523642e-06,
+//         0.0034139978233724833,
+//         4.879730647333602e-11,
+//         7.0706587393942755e-06,
+//         1.1832980817416683e-06,
+//         2.308396182537642e-11,
+//         2.3039119501078176e-09,
+//         3.5538516574007417e-10
+//     ],
+//     "class_index": 0,
+//     "confidence": 0.985529441833496,
+//     "predicted_class":"Abrasions"
+// }
+// const data = {
+//     "all_probabilities": [
+//         4.308329275042123e-18,
+//         6.342008949250522e-12,
+//         6.829818488540695e-08,
+//         4.30478364066289e-09,
+//         1.8105009955844224e-17,
+//         1.0441004311134705e-10,
+//         1.7564044663131995e-10,
+//         5.773824523203075e-05,
+//         0.9999421834945679
+//     ],
+//     "confidence": 0.9999421834945679,
+//     "predicted_class": 9
+// }
+
       console.log("Server Response:", data);
-      setMlOutput((prev) => ({ ...prev, [id]: data.predicted_class }));
+      // Save the full response so result pages can access predicted_class, confidence, etc.
+      setMlOutput((prev) => ({ ...prev, [id]: data }));
+      // Note: mlOutput won't reflect this change immediately due to state batching;
+      // use the logged `data` to inspect server response.
     } catch (error) {
       console.error("Upload error:", error);
       setMlOutput((prev) => ({ ...prev, [id]: "Upload failed" }));
@@ -212,17 +249,16 @@ const MedicalRecords = () => {
                 )}
 
                 {/* Result Preview */}
-                {mlOutput[record.id] &&
-                  mlOutput[record.id] !== "Upload failed" && (
-                    <div className="mt-4 p-3 bg-blue-900 rounded-lg border border-blue-800">
-                      <p className="text-xs font-semibold text-blue-300 mb-1">
-                        Analysis Complete
-                      </p>
-                      <p className="text-sm text-slate-200 font-medium truncate">
-                        {mlOutput[record.id]}
-                      </p>
-                    </div>
-                  )}
+                {mlOutput[record.id] && mlOutput[record.id] !== "Upload failed" && (
+                  <div className="mt-4 p-3 bg-blue-900 rounded-lg border border-blue-800">
+                    <p className="text-xs font-semibold text-blue-300 mb-1">Analysis Complete</p>
+                    <p className="text-sm text-slate-200 font-medium truncate">
+                      {typeof mlOutput[record.id] === 'object'
+                        ? mlOutput[record.id].predicted_class || mlOutput[record.id].predicted_label || JSON.stringify(mlOutput[record.id])
+                        : mlOutput[record.id]}
+                    </p>
+                  </div>
+                )}
 
                 {/* Error State */}
                 {mlOutput[record.id] === "Upload failed" && (

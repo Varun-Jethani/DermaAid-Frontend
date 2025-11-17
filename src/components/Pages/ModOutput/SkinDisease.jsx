@@ -16,16 +16,58 @@ const SkinDiseaseResult = () => {
     9: "Nevus"
   }
   const { state } = useLocation();
-  
-  const { mlOutput } = state || {
-    mlOutput: 3  // Default to Melanoma for demonstration
+
+  // Determine diagnosis label from the router state. Accept multiple shapes and
+  // be robust to 1-based (1..9) and 0-based (0..8) numeric indices coming
+  // from different models or backends. Also accept numeric strings.
+  let incoming = state?.mlOutput ?? state;
+  let diagnosisLabel = null;
+
+  const getLabelFromNumber = (raw) => {
+    if (raw == null) return null;
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return null;
+    // try direct (works when model outputs 1..9)
+    if (diagnosis_Decode[n]) return diagnosis_Decode[n];
+    // if model returned 0..8 (0-based), try +1
+    if (diagnosis_Decode[n + 1]) return diagnosis_Decode[n + 1];
+    // as a last resort try -1 (in case mapping is shifted the other way)
+    if (diagnosis_Decode[n - 1]) return diagnosis_Decode[n - 1];
+    return null;
   };
+
+  if (incoming && typeof incoming === 'object') {
+    // prefer explicit predicted_class / label / class_index fields
+    const predField = incoming.predicted_class ?? incoming.predicted_label ?? incoming.label ?? incoming.class_index ?? incoming.class ?? null;
+
+    if (typeof predField === 'number' || (typeof predField === 'string' && /^\d+$/.test(predField))) {
+      diagnosisLabel = getLabelFromNumber(predField);
+    } else if (typeof predField === 'string' && predField.trim()) {
+      diagnosisLabel = predField;
+    }
+
+    // fallback: sometimes the router state itself may include predicted_class at top level
+    if (!diagnosisLabel && state) {
+      const top = state.predicted_class ?? state.class_index ?? null;
+      if (top != null) diagnosisLabel = getLabelFromNumber(top) || (typeof top === 'string' ? top : null);
+    }
+  } else if (typeof incoming === 'number') {
+    diagnosisLabel = getLabelFromNumber(incoming);
+  } else if (typeof incoming === 'string') {
+    // numeric string or label
+    if (/^\d+$/.test(incoming)) diagnosisLabel = getLabelFromNumber(incoming);
+    else diagnosisLabel = incoming;
+  }
+
+
+  // default to Melanoma if nothing provided (preserve previous demo behaviour)
+  if (!diagnosisLabel) diagnosisLabel = diagnosis_Decode[3];
   
   
   const patientResult = {
     patientName: "Varun Jethani",
-    diagnosisDate: "March 30, 2025",
-    primaryDiagnosis: diagnosis_Decode[mlOutput],
+    diagnosisDate: new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+    primaryDiagnosis: diagnosisLabel,
     supportCount: 97,
     recommendedActions: [
       "Schedule an appointment with a dermatologist within 1 week",
@@ -121,12 +163,19 @@ const SkinDiseaseResult = () => {
     }
   };
 
-  // Get information based on diagnosed condition
+  // Get information based on diagnosed condition (be defensive to avoid runtime errors)
   const diagnosis = patientResult.primaryDiagnosis;
-  const currentDiseaseInfo = diseaseInfo[diagnosis];
-  
-  // Determine severity color (dark theme friendly)
-  const getSeverityColor = (severity) => {
+  const currentDiseaseInfo = diseaseInfo[diagnosis] || {
+    description: "No information available for this diagnosis.",
+    severity: "Unknown",
+    nextSteps: [
+      "Consult a dermatologist for a professional evaluation",
+    ],
+  };
+
+  // Determine severity color (dark theme friendly) — defensive for missing/unknown severity
+  const getSeverityColor = (severity = "") => {
+    if (typeof severity !== 'string' || severity.length === 0) return "text-slate-300";
     if (severity.includes("High")) return "text-red-300";
     if (severity.includes("Medium")) return "text-amber-300";
     return "text-green-300";
