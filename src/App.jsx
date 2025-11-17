@@ -9,6 +9,10 @@ import axios from "axios";
 import AuthPage from "./components/Pages/Auth/Auth";
 axios.defaults.baseURL = "http://localhost:8000/"; // <-- Set your API base URL here
 axios.defaults.headers.common["Content-Type"] = "application/json";
+
+import MedicalRecords from "./components/Pages/Models";
+import SkinDiseaseResult from "./components/Pages/ModOutput/SkinDisease";
+
 const App = () => {
   return (
     // Add 'return' here
@@ -19,6 +23,8 @@ const App = () => {
         <Route path="/us" element={<Us />} />
         <Route path="/featured" element={<Featured />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/models" element={<MedicalRecords />} />
+        <Route path="/skinresult" element={<SkinDiseaseResult />} />
       </Routes>
     </BrowserRouter>
   );
