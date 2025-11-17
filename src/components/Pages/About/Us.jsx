@@ -4,21 +4,21 @@ import { Heart, Code, Lightbulb, Target, Users, Zap } from "lucide-react";
 const Us = () => {
   const team = [
     {
-      name: "Team Member 1",
+      name: "Jay Bhuptani",
       role: "Full Stack Developer",
       description:
         "Passionate about building scalable solutions and creating seamless user experiences.",
       gradient: "from-pink-500 to-rose-500",
     },
     {
-      name: "Team Member 2",
+      name: "Vidhan Prajapati",
       role: "AI/ML Engineer",
       description:
         "Specializes in machine learning algorithms and bringing intelligent features to life.",
       gradient: "from-purple-500 to-indigo-500",
     },
     {
-      name: "Team Member 3",
+      name: "Varun Jethani",
       role: "UI/UX Developer",
       description:
         "Crafting beautiful interfaces and ensuring every pixel serves a purpose.",
