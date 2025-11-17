@@ -7,7 +7,7 @@ import Us from "./components/Pages/About/Us";
 import Featured from "./components/Pages/Projects/Featured";
 import axios from "axios";
 import AuthPage from "./components/Pages/Auth/Auth";
-axios.defaults.baseURL = "http://localhost:8000/"; // <-- Set your API base URL here
+axios.defaults.baseURL = "https://dermaaid-backend.onrender.com"; // <-- Set your API base URL here
 axios.defaults.headers.common["Content-Type"] = "application/json";
 
 import MedicalRecords from "./components/Pages/Models";
